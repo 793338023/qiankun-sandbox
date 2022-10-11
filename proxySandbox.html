@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
+
 <body>
-  
+
 </body>
 <script>
   class ProxySandbox {
@@ -20,8 +22,11 @@
       const rawWindow = window;
       const fakeWindow = {};
       const proxy = new Proxy(fakeWindow, {
+        has(target, key) {
+          return true;
+        },
         set: (target, prop, value) => {
-          if(this.sandboxRunning) {
+          if (this.sandboxRunning) {
             target[prop] = value;
             return true;
           }
@@ -35,24 +40,30 @@
       this.proxy = proxy;
     }
   }
-  window.sex = '男';
+      window.abc = '男';
   let proxy1 = new ProxySandbox();
-  let proxy2 = new ProxySandbox();
-  ((window) => {
+      let proxy2 = new ProxySandbox();
     proxy1.active();
-    console.log('修改前proxy1的sex', window.sex);
-    window.sex = '女';
-    console.log('修改后proxy1的sex', window.sex);
-  })(proxy1.proxy);
-  console.log('外部window.sex=>1', window.sex);
+      (function (window) {
+        with (window) {
+          abc = '00001';
+          console.log(abc);
+        }
+      }).bind(proxy1.proxy)(proxy1.proxy);
+      console.log('外部window.abc=>1', window.abc);
 
-  ((window) => {
     proxy2.active();
-    console.log('修改前proxy2的sex', window.sex);
-    window.sex = '111';
-    console.log('修改后proxy2的sex', window.sex);
-  })(proxy2.proxy);
-  console.log('外部window.sex=>2', window.sex);
+      (function (window) {
+        with (window) {
+          abc = '111';
+          console.log(abc);
+        }
+      }).bind(proxy2.proxy)(proxy2.proxy);
+      console.log('外部window.abc=>2', window.abc);
+
+    
+
 
 </script>
+
 </html>

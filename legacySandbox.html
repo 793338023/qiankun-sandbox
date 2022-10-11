@@ -85,17 +85,17 @@ class Legacy {
   ((window) => {
    // 激活沙箱
    LegacySandbox.active();
-   window.age = '22';
-   window.sex= '女';
-   console.log('激活', window.sex, window.age, LegacySandbox);
+    window.test = '测试';
+    window.name = '不得志名字';
+    console.log('激活', window.test, window.name, LegacySandbox);
    // 失活沙箱
    LegacySandbox.inactive();
-   console.log('退出', window.sex, window.age, LegacySandbox);
+    console.log('退出', window.test, window.name, LegacySandbox);
    // 激活沙箱
    LegacySandbox.active();
-   console.log('再次激活', window.sex, window.age, LegacySandbox);
+    console.log('再次激活', window.test, window.name, LegacySandbox);
   })(LegacySandbox.proxy);
-  console.log('退出沙箱proxy1', window.sex);
+    console.log('退出沙箱proxy1', window.test, window.name);
 
 </script>
 </html>

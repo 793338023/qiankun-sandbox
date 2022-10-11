@@ -51,16 +51,16 @@ class SnapshotSandbox {
 const sandbox = new SnapshotSandbox();
 ((window) => {
    // 激活沙箱
-   sandbox.active();
-   window.sex= '男';
-   window.age = '22';
-   console.log(window.sex, window.age);
+  sandbox.active();
+  window.test = '测试';
+  window.name = '不得志名字';
+  console.log(window.test, window.name);
    // 失活沙箱
    sandbox.inactive();
-   console.log(window.sex, window.age);
+  console.log(window.test, window.name);
    // 激活沙箱
    sandbox.active();
-   console.log(window.sex, window.age);
+  console.log(window.test, window.name);
 })(sandbox.proxy);
 
 </script>
