@@ -32,6 +32,10 @@
           }
         },
         get: (target, prop) => {
+          // 加固，防止逃逸
+          if (prop === Symbol.unscopables) {
+            return undefined;
+          }
           // 如果fakeWindow里面有，就从fakeWindow里面取，否则，就从外部的window里面取
           let value = prop in target ? target[prop] : rawWindow[prop];
           return value
@@ -43,25 +47,30 @@
       window.abc = '男';
   let proxy1 = new ProxySandbox();
       let proxy2 = new ProxySandbox();
-    proxy1.active();
-      (function (window) {
-        with (window) {
-          abc = '00001';
-          console.log(abc);
-        }
-      }).bind(proxy1.proxy)(proxy1.proxy);
-      console.log('外部window.abc=>1', window.abc);
+    // proxy1.active();
+    //   (function (window) {
+    //     with (window) {
+    //       abc = '00001';
+    //       console.log(abc);
+    //     }
+    //   }).bind(proxy1.proxy)(proxy1.proxy);
+    //   console.log('外部window.abc=>1', window.abc);
 
-    proxy2.active();
-      (function (window) {
-        with (window) {
-          abc = '111';
-          console.log(abc);
-        }
-      }).bind(proxy2.proxy)(proxy2.proxy);
-      console.log('外部window.abc=>2', window.abc);
-
-    
+                    //   proxy2.active();
+                    //   (function (window) {
+                    //     with (window) {
+                    //       abc = '111';
+                    //       console.log(abc);
+                    //     }
+                    //   }).bind(proxy2.proxy)(proxy2.proxy);
+                    //   console.log('外部window.abc=>2', window.abc);
+                    const proxy = { a: '333' };
+                    window.a = '222';
+                    with (proxy) {
+                      a = 'zhan';
+                      console.log(a);
+                    }
+                    console.log(a);
 
 
 </script>
