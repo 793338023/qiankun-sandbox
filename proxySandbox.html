@@ -47,30 +47,79 @@
       window.abc = '男';
   let proxy1 = new ProxySandbox();
       let proxy2 = new ProxySandbox();
-    // proxy1.active();
-    //   (function (window) {
-    //     with (window) {
-    //       abc = '00001';
-    //       console.log(abc);
-    //     }
-    //   }).bind(proxy1.proxy)(proxy1.proxy);
-    //   console.log('外部window.abc=>1', window.abc);
+  // proxy1.active();
+  //   (function (window) {
+  //     with (window) {
+  //       abc = '00001';
+  //       console.log(abc);
+  //     }
+  //   }).bind(proxy1.proxy)(proxy1.proxy);
+  //   console.log('外部window.abc=>1', window.abc);
 
-                    //   proxy2.active();
-                    //   (function (window) {
-                    //     with (window) {
-                    //       abc = '111';
-                    //       console.log(abc);
-                    //     }
-                    //   }).bind(proxy2.proxy)(proxy2.proxy);
-                    //   console.log('外部window.abc=>2', window.abc);
-                    const proxy = { a: '333' };
-                    window.a = '222';
-                    with (proxy) {
-                      a = 'zhan';
-                      console.log(a);
-                    }
-                    console.log(a);
+  //   proxy2.active();
+  //   (function (window) {
+  //     with (window) {
+  //       abc = '111';
+  //       console.log(abc);
+  //     }
+  //   }).bind(proxy2.proxy)(proxy2.proxy);
+  //   console.log('外部window.abc=>2', window.abc);
+            // const proxy = { a: '333' };
+            // window.a = '222';
+            // with (proxy) {
+            //   a = 'zhan';
+            //   console.log(a);
+            // }
+            // console.log(a);
+
+            // const obj = {};
+            // const proxy = new Proxy(obj, {
+            //   has(target, key) {
+            //     console.log(`拦截${key}`);
+            //     if (key === 'console') {
+            //       return false;
+            //     }
+            //     return true;
+            //   },
+            //   get(target, key) {
+            //     return target[key];
+            //   },
+            //   set: (target, key, value) => {
+            //     target[key] = value;
+            //     return true;
+            //   },
+            // })
+            // window.a = '222';
+            // with (proxy) {
+            //   a = 'zhan';
+            //   console.log(`with环境a=>${a}`); // zhan
+            // }
+            // console.log(`外部环境a=>${a}`); // 222
+            const parent = {
+              name: '19Qingfeng',
+              get value() {
+                return this.name;
+              },
+            };
+
+            const handler = {
+              get(target, key, receiver) {
+                return Reflect.get(target, key, receiver);
+                // 这里相当于 return target[key]
+              },
+            };
+
+            const proxy = new Proxy(parent, handler);
+
+            const obj = {
+              name: 'wang.haoyu',
+            };
+
+            // 设置obj继承与parent的代理对象proxy
+            Object.setPrototypeOf(obj, proxy);
+
+            // log: false
+            console.log(obj.value);
 
 
 </script>
