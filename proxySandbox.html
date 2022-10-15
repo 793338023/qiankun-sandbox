@@ -1,127 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-
-<body>
-
-</body>
-<script>
-  class ProxySandbox {
-    active() {
-      this.sandboxRunning = true;
-    }
-    inactive() {
-      this.sandboxRunning = false;
-    }
-    constructor() {
-      const rawWindow = window;
-      const fakeWindow = {};
-      const proxy = new Proxy(fakeWindow, {
-        has(target, key) {
-          return true;
-        },
-        set: (target, prop, value) => {
-          if (this.sandboxRunning) {
-            target[prop] = value;
+  <body></body>
+  <script>
+    class ProxySandbox {
+      active() {
+        this.sandboxRunning = true;
+      }
+      inactive() {
+        this.sandboxRunning = false;
+      }
+      constructor() {
+        const rawWindow = window;
+        const fakeWindow = {};
+        const proxy = new Proxy(fakeWindow, {
+          has(target, key) {
+            if (["consloe", "props"].includes(key)) {
+              return false;
+            }
             return true;
-          }
-        },
-        get: (target, prop) => {
-          // 加固，防止逃逸
-          if (prop === Symbol.unscopables) {
-            return undefined;
-          }
-          // 如果fakeWindow里面有，就从fakeWindow里面取，否则，就从外部的window里面取
-          let value = prop in target ? target[prop] : rawWindow[prop];
-          return value
-        }
-      })
-      this.proxy = proxy;
+          },
+          set: (target, prop, value) => {
+            if (this.sandboxRunning) {
+              target[prop] = value;
+              return true;
+            }
+          },
+          get: (target, prop) => {
+            // 加固，防止逃逸
+            if (prop === Symbol.unscopables) {
+              return undefined;
+            }
+            // 如果fakeWindow里面有，就从fakeWindow里面取，否则，就从外部的window里面取
+            let value = prop in target ? target[prop] : rawWindow[prop];
+            return value;
+          },
+        });
+        this.proxy = proxy;
+      }
     }
-  }
-      window.abc = '男';
-  let proxy1 = new ProxySandbox();
-      let proxy2 = new ProxySandbox();
-  // proxy1.active();
-  //   (function (window) {
-  //     with (window) {
-  //       abc = '00001';
-  //       console.log(abc);
-  //     }
-  //   }).bind(proxy1.proxy)(proxy1.proxy);
-  //   console.log('外部window.abc=>1', window.abc);
 
-  //   proxy2.active();
-  //   (function (window) {
-  //     with (window) {
-  //       abc = '111';
-  //       console.log(abc);
-  //     }
-  //   }).bind(proxy2.proxy)(proxy2.proxy);
-  //   console.log('外部window.abc=>2', window.abc);
-            // const proxy = { a: '333' };
-            // window.a = '222';
-            // with (proxy) {
-            //   a = 'zhan';
-            //   console.log(a);
-            // }
-            // console.log(a);
+    const props = {};
 
-            // const obj = {};
-            // const proxy = new Proxy(obj, {
-            //   has(target, key) {
-            //     console.log(`拦截${key}`);
-            //     if (key === 'console') {
-            //       return false;
-            //     }
-            //     return true;
-            //   },
-            //   get(target, key) {
-            //     return target[key];
-            //   },
-            //   set: (target, key, value) => {
-            //     target[key] = value;
-            //     return true;
-            //   },
-            // })
-            // window.a = '222';
-            // with (proxy) {
-            //   a = 'zhan';
-            //   console.log(`with环境a=>${a}`); // zhan
-            // }
-            // console.log(`外部环境a=>${a}`); // 222
-            const parent = {
-              name: '19Qingfeng',
-              get value() {
-                return this.name;
-              },
-            };
+    window.abc = "男";
 
-            const handler = {
-              get(target, key, receiver) {
-                return Reflect.get(target, key, receiver);
-                // 这里相当于 return target[key]
-              },
-            };
+    let proxy1 = new ProxySandbox();
+    proxy1.active();
 
-            const proxy = new Proxy(parent, handler);
+    (function (window) {
+      with (window) {
+        props.a = 10;
+        abc = "00001";
+        console.log(abc); // 00001
+        console.log(props);
+      }
+    }.bind(proxy1.proxy)(proxy1.proxy));
 
-            const obj = {
-              name: 'wang.haoyu',
-            };
+    console.log("外部window.abc=>1", window.abc); // 男
 
-            // 设置obj继承与parent的代理对象proxy
-            Object.setPrototypeOf(obj, proxy);
+    let proxy2 = new ProxySandbox();
+    proxy2.active();
 
-            // log: false
-            console.log(obj.value);
+    (function (window) {
+      with (window) {
+        props.b = 20;
+        abc = "111";
+        console.log(abc); // 111
+        console.log(props);
+      }
+    }.bind(proxy2.proxy)(proxy2.proxy));
 
-
-</script>
-
+    console.log("外部window.abc=>2", window.abc); // 男
+  </script>
 </html>
